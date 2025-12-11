@@ -24,7 +24,7 @@ export type CompanyLogo = {
 };
 
 export const COMPANY_LOGOS: CompanyLogo[] = [
-  { company: "Waturbine", logo: waturbineLogo },  // Face 1
+  { company: "FoloBotics", logo: waturbineLogo },  // Face 1
   { company: "WATO", logo: watoLogo },            // Face 2
   { company: "Baja", logo: bajaLogo },            // Face 3 - Fixed!
   { company: "Needlist", logo: needlistLogo },    // Face 4 - Fixed!
