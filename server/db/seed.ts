@@ -63,6 +63,7 @@ async function seed() {
       position: "[Position Title]",
       location: "[Location]",
       description: "[Brief description of role and responsibilities]",
+      logoUrl: "/uploads/experience-logos/1763609968432-810591528.svg",
       responsibilities: JSON.stringify([
         "[Responsibility 1]",
         "[Responsibility 2]",
@@ -71,6 +72,7 @@ async function seed() {
       achievements: JSON.stringify([
         "[Achievement 1]",
         "[Achievement 2]",
+        "[Achievement 3]",
       ]),
       technologies: JSON.stringify(["[Tech 1]", "[Tech 2]", "[Tech 3]"]),
       startDate: "2023-01",
@@ -83,6 +85,7 @@ async function seed() {
       position: "[Position Title]",
       location: "[Location]",
       description: "[Brief description of role and responsibilities]",
+      logoUrl: "/uploads/experience-logos/1764736683015-598113689.svg",
       responsibilities: JSON.stringify([
         "[Responsibility 1]",
         "[Responsibility 2]",
@@ -91,6 +94,7 @@ async function seed() {
       achievements: JSON.stringify([
         "[Achievement 1]",
         "[Achievement 2]",
+        "[Achievement 3]",
       ]),
       technologies: JSON.stringify(["[Tech 1]", "[Tech 2]", "[Tech 3]"]),
       startDate: "2022-06",
@@ -103,6 +107,7 @@ async function seed() {
       position: "[Position Title]",
       location: "[Location]",
       description: "[Brief description of role and responsibilities]",
+      logoUrl: "/uploads/experience-logos/1764888559731-210155465.svg",
       responsibilities: JSON.stringify([
         "[Responsibility 1]",
         "[Responsibility 2]",
@@ -111,6 +116,7 @@ async function seed() {
       achievements: JSON.stringify([
         "[Achievement 1]",
         "[Achievement 2]",
+        "[Achievement 3]",
       ]),
       technologies: JSON.stringify(["[Tech 1]", "[Tech 2]", "[Tech 3]"]),
       startDate: "2022-01",
@@ -123,6 +129,7 @@ async function seed() {
       position: "[Position Title]",
       location: "[Location]",
       description: "[Brief description of role and responsibilities]",
+      logoUrl: "/uploads/experience-logos/1764888579971-287010897.svg",
       responsibilities: JSON.stringify([
         "[Responsibility 1]",
         "[Responsibility 2]",
@@ -131,6 +138,7 @@ async function seed() {
       achievements: JSON.stringify([
         "[Achievement 1]",
         "[Achievement 2]",
+        "[Achievement 3]",
       ]),
       technologies: JSON.stringify(["[Tech 1]", "[Tech 2]", "[Tech 3]"]),
       startDate: "2021-06",
@@ -143,6 +151,7 @@ async function seed() {
       position: "[Position Title]",
       location: "[Location]",
       description: "[Brief description of role and responsibilities]",
+      logoUrl: "/uploads/experience-logos/1764902561603-7677017.svg",
       responsibilities: JSON.stringify([
         "[Responsibility 1]",
         "[Responsibility 2]",
@@ -151,6 +160,7 @@ async function seed() {
       achievements: JSON.stringify([
         "[Achievement 1]",
         "[Achievement 2]",
+        "[Achievement 3]",
       ]),
       technologies: JSON.stringify(["[Tech 1]", "[Tech 2]", "[Tech 3]"]),
       startDate: "2021-01",
@@ -163,6 +173,7 @@ async function seed() {
       position: "[Position Title]",
       location: "[Location]",
       description: "[Brief description of role and responsibilities]",
+      logoUrl: "/uploads/experience-logos/1764906354738-406058572.svg",
       responsibilities: JSON.stringify([
         "[Responsibility 1]",
         "[Responsibility 2]",
@@ -171,6 +182,7 @@ async function seed() {
       achievements: JSON.stringify([
         "[Achievement 1]",
         "[Achievement 2]",
+        "[Achievement 3]",
       ]),
       technologies: JSON.stringify(["[Tech 1]", "[Tech 2]", "[Tech 3]"]),
       startDate: "2020-06",
