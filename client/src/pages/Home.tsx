@@ -17,7 +17,7 @@ export default function Home() {
   const expSectionRef = useRef<HTMLDivElement | null>(null);
 
   const diceExperiences = useMemo(
-    () => (experiences ?? []).filter((e) => e.showOnDice && e.logoUrl).slice(0, 6),
+    () => (Array.isArray(experiences) ? experiences : []).filter((e) => e.showOnDice && e.logoUrl).slice(0, 6),
     [experiences]
   );
 
