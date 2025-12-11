@@ -1,6 +1,9 @@
 [build]
 builder = "nixpacks"
 
+[build.nixpacks]
+packages = ["nodejs", "python3", "gcc", "g++", "make"]
+
 [deploy]
 startCommand = "npm start"
 healthcheckPath = "/"
