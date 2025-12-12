@@ -24,10 +24,9 @@ export type CompanyLogo = {
 };
 
 export const COMPANY_LOGOS: CompanyLogo[] = [
-  { company: "FoloBotics", logo: waturbineLogo },  // Face 1
-  { company: "WATO", logo: watoLogo },            // Face 2
-  { company: "Baja", logo: bajaLogo },            // Face 3 - Fixed!
-  { company: "Needlist", logo: needlistLogo },    // Face 4 - Fixed!
-  { company: "AfterQuery", logo: afterqueryLogo },// Face 5
-  { company: "Studica", logo: studicaLogo },      // Face 6
+  { company: "WATO", logo: watoLogo },                // Face 1
+  { company: "AfterQuery", logo: afterqueryLogo },    // Face 2
+  { company: "UW Baja SAE", logo: bajaLogo },         // Face 3
+  { company: "MobileSurety", logo: needlistLogo },    // Face 4
+  { company: "FoloBotics", logo: waturbineLogo },     // Face 5
 ];
