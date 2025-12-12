@@ -21,6 +21,21 @@ export default function Home() {
     [experiences]
   );
 
+  useEffect(() => {
+    // Debug dice ordering
+    if (diceExperiences.length) {
+      // eslint-disable-next-line no-console
+      console.log(
+        "diceExperiences order",
+        diceExperiences.map((e) => ({
+          id: e.id,
+          company: e.company,
+          diceOrder: (e as any).diceOrder ?? null,
+        }))
+      );
+    }
+  }, [diceExperiences]);
+
   const faces = useMemo(
     () =>
       Object.fromEntries(
@@ -100,6 +115,14 @@ export default function Home() {
                   faces={faces as Record<FaceIndex, React.ReactNode>}
                   faceScale={1.0}
                   onFaceChange={(face) => {
+                    const exp = diceExperiences[(face ?? 1) - 1];
+                    // eslint-disable-next-line no-console
+                    console.log("face change", {
+                      face,
+                      company: exp?.company,
+                      id: exp?.id,
+                      diceOrder: (exp as any)?.diceOrder ?? null,
+                    });
                     setSelectedFace(face);
                     setSelectionId((n) => n + 1);
                   }}

@@ -535,7 +535,7 @@ router.get("/experience", async (_req, res) => {
     const allExperience = await db
       .select()
       .from(experience)
-      .orderBy(desc(experience.current), experience.startDate);
+      .orderBy(experience.diceOrder, experience.id);
     
     // Parse JSON strings back to arrays
     const parsedExperience = allExperience.map(exp => ({
@@ -864,7 +864,7 @@ router.get("/portfolio", async (_req, res) => {
   try {
     const [allProjects, allExperience, allSkills, allEducation, allCertifications] = await Promise.all([
       db.select().from(projects).orderBy(projects.displayOrder),
-      db.select().from(experience).orderBy(desc(experience.current), experience.startDate),
+      db.select().from(experience).orderBy(experience.id),
       db.select().from(skills).orderBy(skills.displayOrder),
       db.select().from(education).orderBy(desc(education.current), education.displayOrder),
       db.select().from(certifications).orderBy(certifications.displayOrder),

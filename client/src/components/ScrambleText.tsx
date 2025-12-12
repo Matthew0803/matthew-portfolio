@@ -39,10 +39,10 @@ export default function ScrambleText({ text, className = "" }: ScrambleTextProps
   }, [text]);
 
   return (
-    <h1 className={className}>
+    <span className={className}>
       {isComplete ? text : displayText}
       <span className="animate-pulse">|</span>
-    </h1>
+    </span>
   );
 }
 

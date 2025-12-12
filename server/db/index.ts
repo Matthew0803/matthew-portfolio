@@ -3,8 +3,8 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import path from "path";
 import * as schema from "./schema";
 
-// Create SQLite database file in project root (using process.cwd() for reliability)
-const dbPath = path.resolve(process.cwd(), "portfolio.db");
+// Create SQLite database file in server/db directory
+const dbPath = path.resolve(process.cwd(), "server/db/portfolio.db");
 const sqlite = new Database(dbPath);
 
 // Enable foreign keys

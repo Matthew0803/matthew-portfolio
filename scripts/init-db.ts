@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import { execSync } from "child_process";
 
-const dbPath = path.resolve(process.cwd(), "portfolio.db");
+const dbPath = path.resolve(process.cwd(), "server/db/portfolio.db");
 
 // Check if database exists and has data
 let needsSeed = true;

@@ -120,8 +120,8 @@ export default function Dice3D({ size = 240, className, faces, faceImages, faceS
     () => [
       { face: 1 as const, x: 0, y: 0 },
       { face: 6 as const, x: 0, y: 180 },
-      { face: 3 as const, x: 0, y: 90 },
-      { face: 4 as const, x: 0, y: -90 },
+      { face: 3 as const, x: 0, y: -90 },
+      { face: 4 as const, x: 0, y: 90 },
       { face: 5 as const, x: -90, y: 0 },
       { face: 2 as const, x: 90, y: 0 },
     ],
@@ -131,8 +131,8 @@ export default function Dice3D({ size = 240, className, faces, faceImages, faceS
     const m: Record<1|2|3|4|5|6, { x: number; y: number }> = {
       1: { x: 0, y: 0 },
       2: { x: 90, y: 0 },
-      3: { x: 0, y: 90 },
-      4: { x: 0, y: -90 },
+      3: { x: 0, y: -90 },
+      4: { x: 0, y: 90 },
       5: { x: -90, y: 0 },
       6: { x: 0, y: 180 },
     };

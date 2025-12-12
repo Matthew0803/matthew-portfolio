@@ -39,6 +39,7 @@ export const experience = sqliteTable("experience", {
   endDate: text("end_date"), // null means current position
   current: integer("current", { mode: "boolean" }).default(false),
   showOnDice: integer("show_on_dice", { mode: "boolean" }).default(false),
+  diceOrder: integer("dice_order").default(0),
   createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
   updatedAt: text("updated_at").default("CURRENT_TIMESTAMP"),
 });
