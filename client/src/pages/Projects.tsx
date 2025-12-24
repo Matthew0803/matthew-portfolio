@@ -58,7 +58,7 @@ export default function Projects() {
           <div className="mb-12">
             <h1 className="text-5xl font-bold mb-4">Projects</h1>
             <p className="text-xl text-muted-foreground">
-              A collection of my engineering and software projects
+              A collection of my engineering projects
             </p>
           </div>
 
@@ -84,18 +84,6 @@ export default function Projects() {
                 onLeave={() => setHoveredId(null)}
               />
             ))}
-          </div>
-
-          {/* Add more projects CTA */}
-          <div className="mt-16 text-center">
-            <div className="inline-block bg-card border border-border rounded-lg p-8">
-              <p className="text-muted-foreground mb-2">
-                More projects coming soon...
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Replace the sample projects above with your own work!
-              </p>
-            </div>
           </div>
         </div>
       </main>

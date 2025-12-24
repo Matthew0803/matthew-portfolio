@@ -5,15 +5,17 @@ import { desc, eq } from "drizzle-orm";
 import multer from "multer";
 import path from "path";
 import fs from "node:fs";
+import { getUploadsDir } from "../config/paths";
 
 const router = Router();
 const ALLOW_WRITES = process.env.ALLOW_WRITES !== "false";
 
-const logoUploadDir = path.resolve(process.cwd(), "uploads", "experience-logos");
-const projectThumbnailDir = path.resolve(process.cwd(), "uploads", "project-thumbnails");
-const projectVideoDir = path.resolve(process.cwd(), "uploads", "project-videos");
-const projectImagesDir = path.resolve(process.cwd(), "uploads", "project-images");
-const galleryImageDir = path.resolve(process.cwd(), "uploads", "gallery-images");
+const uploadsDir = getUploadsDir();
+const logoUploadDir = path.resolve(uploadsDir, "experience-logos");
+const projectThumbnailDir = path.resolve(uploadsDir, "project-thumbnails");
+const projectVideoDir = path.resolve(uploadsDir, "project-videos");
+const projectImagesDir = path.resolve(uploadsDir, "project-images");
+const galleryImageDir = path.resolve(uploadsDir, "gallery-images");
 
 if (!fs.existsSync(logoUploadDir)) {
   fs.mkdirSync(logoUploadDir, { recursive: true });
@@ -739,6 +741,7 @@ router.post("/gallery/bulk-upload", uploadGalleryImages.array("images"), async (
       return {
         imageUrl: relativeUrl,
         description: "",
+        tag: null,
         displayOrder: nextOrder,
       };
     });
@@ -768,15 +771,25 @@ router.put("/gallery/:id", async (req, res) => {
     const body = req.body as {
       description?: string | null;
       displayOrder?: number;
+      tag?: string | null;
     };
 
-    await db
-      .update(gallery)
-      .set({
-        description: body.description ?? null,
-        displayOrder: body.displayOrder ?? 0,
-      })
-      .where(eq(gallery.id, id));
+    const updates: Record<string, unknown> = {};
+    if (Object.prototype.hasOwnProperty.call(body, "description")) {
+      updates.description = body.description ?? null;
+    }
+    if (Object.prototype.hasOwnProperty.call(body, "displayOrder")) {
+      updates.displayOrder = body.displayOrder;
+    }
+    if (Object.prototype.hasOwnProperty.call(body, "tag")) {
+      updates.tag = body.tag ?? null;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "No fields provided" });
+    }
+
+    await db.update(gallery).set(updates).where(eq(gallery.id, id));
 
     res.json({ success: true });
   } catch (error) {

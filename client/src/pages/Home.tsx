@@ -99,8 +99,9 @@ export default function Home() {
                   <h2 className="text-2xl font-semibold mb-4">About Me</h2>
                   <div className="space-y-4 text-muted-foreground">
                     <p className="italic text-base md:text-lg">
-                      Passionate mechatronics engineering student with a focus on artificial intelligence and robotics. 
+                      Passionate mechatronics engineering student with a focus on artificial intelligence.
                       I enjoy building innovative solutions that combine hardware and software to solve real-world problems.
+                      Roll the dice to explore my professional experience!
                     </p>
                   </div>
                 </div>

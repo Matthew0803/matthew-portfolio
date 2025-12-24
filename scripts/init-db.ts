@@ -1,11 +1,45 @@
 import Database from "better-sqlite3";
-import path from "path";
 import { execSync } from "child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { getDataDir, getDbFilePath, getUploadsDir } from "../server/config/paths";
 
-const dbPath = path.resolve(process.cwd(), "server/db/portfolio.db");
+const dbPath = getDbFilePath();
+const dataDir = getDataDir();
+const uploadsDir = getUploadsDir();
+
+function copyDirRecursiveSync(sourceDir: string, destDir: string) {
+  if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+  for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
+    const src = path.join(sourceDir, entry.name);
+    const dest = path.join(destDir, entry.name);
+    if (entry.isDirectory()) {
+      copyDirRecursiveSync(src, dest);
+    } else if (entry.isFile()) {
+      fs.copyFileSync(src, dest);
+    }
+  }
+}
+
+function isDirEmpty(dir: string): boolean {
+  if (!fs.existsSync(dir)) return true;
+  return fs.readdirSync(dir).length === 0;
+}
+
+// If running with a persistent volume (DATA_DIR), and you committed an initial ./uploads folder,
+// copy it into the volume the first time so seeded URLs actually resolve.
+if (dataDir) {
+  const repoUploadsDir = path.resolve(process.cwd(), "uploads");
+  if (repoUploadsDir !== uploadsDir && fs.existsSync(repoUploadsDir) && isDirEmpty(uploadsDir)) {
+    console.log(`\n📦 Bootstrapping uploads into volume: ${uploadsDir}`);
+    copyDirRecursiveSync(repoUploadsDir, uploadsDir);
+    console.log("✅ Uploads copied to volume.");
+  }
+}
 
 // Check if database exists and has data
 let needsSeed = true;
+const forceSeed = process.env.FORCE_SEED === "true";
 
 try {
   const db = new Database(dbPath);
@@ -29,6 +63,11 @@ try {
   } else {
     console.log("⚠️ Error checking database:", error.message);
   }
+}
+
+if (forceSeed) {
+  console.log("\n⚠️ FORCE_SEED=true set. Will re-seed database.");
+  needsSeed = true;
 }
 
 // Always run db:push to ensure tables exist

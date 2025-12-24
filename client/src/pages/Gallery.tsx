@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import Navigation from "@/components/Navigation";
 import SocialBar from "@/components/SocialBar";
 import { useGallery } from "@/hooks/usePortfolio";
+import { Button } from "@/components/ui/button";
 
 export default function Gallery() {
   const { data: galleryItems, isLoading, error } = useGallery();
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [activeTag, setActiveTag] = useState<"CAD" | "Circuit" | null>(null);
 
   const selectedItem =
     selectedId != null && galleryItems
@@ -16,6 +18,12 @@ export default function Gallery() {
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  const filteredItems = galleryItems
+    ? activeTag
+      ? galleryItems.filter((item) => item.tag === activeTag)
+      : galleryItems
+    : null;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -29,8 +37,27 @@ export default function Gallery() {
           <div className="mb-12">
             <h1 className="text-5xl font-bold mb-4">Gallery</h1>
             <p className="text-xl text-muted-foreground">
-              A collection of my creative work and photography
+              Images of my engineering projects and designs
             </p>
+
+            <div className="mt-6 flex items-center gap-2">
+              <Button
+                type="button"
+                variant={activeTag === "CAD" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveTag((prev) => (prev === "CAD" ? null : "CAD"))}
+              >
+                CAD
+              </Button>
+              <Button
+                type="button"
+                variant={activeTag === "Circuit" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveTag((prev) => (prev === "Circuit" ? null : "Circuit"))}
+              >
+                Circuit
+              </Button>
+            </div>
           </div>
 
           {/* Gallery Grid */}
@@ -42,9 +69,9 @@ export default function Gallery() {
             <p className="text-red-500 mb-8">Failed to load gallery images.</p>
           )}
 
-          {galleryItems && galleryItems.length > 0 && (
+          {filteredItems && filteredItems.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {galleryItems.map((item) => (
+              {filteredItems.map((item) => (
                 <div
                   key={item.id}
                   className="group relative aspect-square overflow-hidden rounded-lg bg-muted cursor-pointer"
@@ -66,18 +93,6 @@ export default function Gallery() {
               ))}
             </div>
           )}
-
-          {/* Placeholder Message */}
-          <div className="mt-16 text-center">
-            <div className="inline-block bg-card border border-border rounded-lg p-8">
-              <p className="text-muted-foreground mb-2">
-                Gallery section is ready for your content!
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Replace the sample images above with your own photography, artwork, or creative projects.
-              </p>
-            </div>
-          </div>
         </div>
       </main>
       {selectedItem && (

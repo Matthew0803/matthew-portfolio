@@ -1,8 +1,9 @@
 import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
+import { getDbFilePath } from "../server/config/paths";
 
-const dbPath = path.resolve(process.cwd(), "server/db/portfolio.db");
+const dbPath = getDbFilePath();
 const seedPath = path.resolve(process.cwd(), "server/db/seed.ts");
 
 console.log("📤 Exporting local database to seed.ts...\n");
@@ -15,6 +16,8 @@ const projects = db.prepare("SELECT * FROM projects").all() as any[];
 const skills = db.prepare("SELECT * FROM skills").all() as any[];
 const educations = db.prepare("SELECT * FROM education").all() as any[];
 const certs = db.prepare("SELECT * FROM certifications").all() as any[];
+const galleryItems = db.prepare("SELECT * FROM gallery").all() as any[];
+const projectImages = db.prepare("SELECT * FROM project_images").all() as any[];
 
 db.close();
 
@@ -25,9 +28,14 @@ const toCamel = (s: string) => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
 const formatValue = (val: any, key: string): string => {
   if (val === null) return "null";
   if (typeof val === "boolean" || val === 0 || val === 1) {
-    if (key.includes("current") || key.includes("featured") || key.includes("show")) {
-      return val ? "true" : "false";
-    }
+    const booleanish =
+      key.includes("current") ||
+      key.includes("featured") ||
+      key.includes("show") ||
+      key.includes("developing") ||
+      key.includes("thumbnail") ||
+      key.startsWith("is_");
+    if (booleanish) return val ? "true" : "false";
   }
   if (typeof val === "number") return String(val);
   if (typeof val === "string") {
@@ -44,7 +52,7 @@ const formatValue = (val: any, key: string): string => {
 };
 
 // Convert DB row to seed format
-const formatRow = (row: any, excludeKeys: string[] = ["id", "created_at", "updated_at"]): string => {
+const formatRow = (row: any, excludeKeys: string[] = ["created_at", "updated_at"]): string => {
   const lines: string[] = [];
   for (const [key, val] of Object.entries(row)) {
     if (excludeKeys.includes(key)) continue;
@@ -56,42 +64,82 @@ const formatRow = (row: any, excludeKeys: string[] = ["id", "created_at", "updat
 
 // Generate seed.ts content
 const seedContent = `import { db } from "./index";
-import { projects, experience, skills, education, certifications } from "./schema";
+import { projects, experience, skills, education, certifications, gallery, projectImages } from "./schema";
 
 async function seed() {
   console.log("🌱 Seeding database...");
 
   // Clear existing data
-  await db.delete(projects);
-  await db.delete(experience);
-  await db.delete(skills);
-  await db.delete(education);
-  await db.delete(certifications);
+  db.delete(projectImages).run();
+  db.delete(gallery).run();
+  db.delete(projects).run();
+  db.delete(experience).run();
+  db.delete(skills).run();
+  db.delete(education).run();
+  db.delete(certifications).run();
 
   // Seed Projects (exported from local DB)
-  await db.insert(projects).values([
+  const projectRows = [
 ${projects.map(p => formatRow(p)).join(",\n")}
-  ]);
+  ] as const;
+
+  for (const row of projectRows) {
+    db.insert(projects).values(row).run();
+  }
+
+  // Seed Project Images
+  const projectImageRows = [
+${projectImages.map(p => formatRow(p)).join(",\n")}
+  ] as const;
+
+  for (const row of projectImageRows) {
+    db.insert(projectImages).values(row).run();
+  }
 
   // Seed Experience (exported from local DB)
-  await db.insert(experience).values([
+  const experienceRows = [
 ${experiences.map(e => formatRow(e)).join(",\n")}
-  ]);
+  ] as const;
+
+  for (const row of experienceRows) {
+    db.insert(experience).values(row).run();
+  }
 
   // Seed Skills
-  await db.insert(skills).values([
+  const skillRows = [
 ${skills.map(s => formatRow(s)).join(",\n")}
-  ]);
+  ] as const;
+
+  for (const row of skillRows) {
+    db.insert(skills).values(row).run();
+  }
 
   // Seed Education
-  await db.insert(education).values([
+  const educationRows = [
 ${educations.map(e => formatRow(e)).join(",\n")}
-  ]);
+  ] as const;
+
+  for (const row of educationRows) {
+    db.insert(education).values(row).run();
+  }
 
   // Seed Certifications
-  await db.insert(certifications).values([
+  const certificationRows = [
 ${certs.map(c => formatRow(c)).join(",\n")}
-  ]);
+  ] as const;
+
+  for (const row of certificationRows) {
+    db.insert(certifications).values(row).run();
+  }
+
+  // Seed Gallery
+  const galleryRows = [
+${galleryItems.map(g => formatRow(g)).join(",\n")}
+  ] as const;
+
+  for (const row of galleryRows) {
+    db.insert(gallery).values(row).run();
+  }
 
   console.log("✅ Database seeded successfully!");
 }
@@ -114,3 +162,5 @@ console.log(`   - ${projects.length} projects`);
 console.log(`   - ${skills.length} skills`);
 console.log(`   - ${educations.length} education entries`);
 console.log(`   - ${certs.length} certifications`);
+console.log(`   - ${projectImages.length} project images`);
+console.log(`   - ${galleryItems.length} gallery items`);

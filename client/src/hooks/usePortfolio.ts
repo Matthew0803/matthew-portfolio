@@ -87,6 +87,7 @@ export interface GalleryItem {
   id: number;
   imageUrl: string;
   description: string | null;
+  tag: string | null;
   displayOrder: number;
   createdAt: string;
 }

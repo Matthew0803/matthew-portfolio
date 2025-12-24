@@ -3,6 +3,7 @@ import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
 import portfolioRoutes from "./routes/portfolio";
+import { getUploadsDir } from "./config/paths";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,7 +20,7 @@ async function startServer() {
   app.use("/api", portfolioRoutes);
 
   // Serve uploaded assets (logos, gallery images, etc.)
-  const uploadsPath = path.resolve(process.cwd(), "uploads");
+  const uploadsPath = getUploadsDir();
   app.use("/uploads", express.static(uploadsPath));
 
   // Serve static files from dist/public in production

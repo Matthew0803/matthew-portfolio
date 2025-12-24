@@ -90,6 +90,7 @@ export const gallery = sqliteTable("gallery", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   imageUrl: text("image_url").notNull(),
   description: text("description"),
+  tag: text("tag"),
   displayOrder: integer("display_order").default(0),
   createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
 });
