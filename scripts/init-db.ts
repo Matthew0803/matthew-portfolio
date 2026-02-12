@@ -8,6 +8,10 @@ const dbPath = getDbFilePath();
 const dataDir = getDataDir();
 const uploadsDir = getUploadsDir();
 
+const skipDbInit = process.env.SKIP_DB_INIT === "true";
+const skipDbPush = process.env.SKIP_DB_PUSH === "true";
+const skipDbSeed = process.env.SKIP_DB_SEED === "true";
+
 function copyDirRecursiveSync(sourceDir: string, destDir: string) {
   if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
   for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
@@ -41,6 +45,11 @@ if (dataDir) {
 let needsSeed = true;
 const forceSeed = process.env.FORCE_SEED === "true";
 
+if (skipDbInit) {
+  console.log("\n⏭️ SKIP_DB_INIT=true set. Skipping database initialization.");
+  process.exit(0);
+}
+
 try {
   const db = new Database(dbPath);
   
@@ -71,13 +80,25 @@ if (forceSeed) {
 }
 
 // Always run db:push to ensure tables exist
-console.log("\n📦 Running db:push to ensure tables exist...");
-execSync("npm run db:push", { stdio: "inherit" });
+if (!skipDbPush) {
+  console.log("\n📦 Running db:push to ensure tables exist...");
+  execSync("npm run db:push", {
+    stdio: "inherit",
+    timeout: Number(process.env.DB_PUSH_TIMEOUT_MS ?? 180_000),
+  });
+} else {
+  console.log("\n⏭️ SKIP_DB_PUSH=true set. Skipping schema push.");
+}
 
 // Only seed if needed
-if (needsSeed) {
+if (needsSeed && !skipDbSeed) {
   console.log("\n🌱 Running db:seed...");
-  execSync("npm run db:seed", { stdio: "inherit" });
+  execSync("npm run db:seed", {
+    stdio: "inherit",
+    timeout: Number(process.env.DB_SEED_TIMEOUT_MS ?? 180_000),
+  });
+} else if (needsSeed && skipDbSeed) {
+  console.log("\n⏭️ SKIP_DB_SEED=true set. Skipping seed.");
 } else {
   console.log("\n⏭️ Skipping seed (data already exists).");
 }
