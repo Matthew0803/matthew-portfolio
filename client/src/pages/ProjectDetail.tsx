@@ -89,7 +89,6 @@ export default function ProjectDetail() {
                           {project.endDate ? "Completed" : "In progress"}
                         </span>
                       )}
-                      <span className="text-muted-foreground">Project ID: {project.id}</span>
                     </div>
                   </div>
 

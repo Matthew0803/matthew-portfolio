@@ -17,7 +17,7 @@ async function seed() {
   const projectRows = [
     {
       id: 13,
-      title: "Beethovan",
+      title: "Beethoven",
       description: "Morse Code Robot",
       longDescription: "This is a mechatronics project I finished with my classmate. We take sound input (Morse code), translate it to English, then write them on a whiteboard.",
       technologies: JSON.stringify(["C++","C"]),
@@ -475,57 +475,6 @@ async function seed() {
 
   for (const row of skillRows) {
     db.insert(skills).values(row).run();
-  }
-
-  // Seed Education
-  const educationRows = [
-    {
-      id: 4,
-      institution: "University of Technology",
-      degree: "Bachelor of Science",
-      field: "Computer Science",
-      location: "Boston, MA",
-      description: "Focused on software engineering, algorithms, and web development. Graduated with honors.",
-      gpa: "3.8",
-      startDate: "2015-09",
-      endDate: "2019-05",
-      current: false,
-      displayOrder: 1,
-    }
-  ] as const;
-
-  for (const row of educationRows) {
-    db.insert(education).values(row).run();
-  }
-
-  // Seed Certifications
-  const certificationRows = [
-    {
-      id: 7,
-      name: "AWS Certified Developer - Associate",
-      issuer: "Amazon Web Services",
-      issueDate: "2023-03",
-      expiryDate: null,
-      credentialId: "AWS-12345",
-      credentialUrl: "https://aws.amazon.com/verification",
-      description: "Validates expertise in developing and maintaining applications on AWS",
-      displayOrder: 1,
-    },
-    {
-      id: 8,
-      name: "Professional Scrum Master I",
-      issuer: "Scrum.org",
-      issueDate: "2022-08",
-      expiryDate: null,
-      credentialId: "PSM-67890",
-      credentialUrl: "https://scrum.org/verification",
-      description: "Demonstrates understanding of Scrum framework and agile principles",
-      displayOrder: 2,
-    }
-  ] as const;
-
-  for (const row of certificationRows) {
-    db.insert(certifications).values(row).run();
   }
 
   // Seed Gallery
