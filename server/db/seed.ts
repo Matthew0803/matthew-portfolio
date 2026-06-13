@@ -1,19 +1,9 @@
 import { db } from "./index";
-import { projects, experience, skills, education, certifications, gallery, projectImages } from "./schema";
+import { projects, experience, skills, education, certifications, gallery, projectImages, experienceImages } from "./schema";
 
 async function seed() {
   console.log("🌱 Seeding database...");
 
-  // Clear existing data
-  db.delete(projectImages).run();
-  db.delete(gallery).run();
-  db.delete(projects).run();
-  db.delete(experience).run();
-  db.delete(skills).run();
-  db.delete(education).run();
-  db.delete(certifications).run();
-
-  // Seed Projects (exported from local DB)
   const projectRows = [
     {
       id: 13,
@@ -78,10 +68,9 @@ async function seed() {
   ] as const;
 
   for (const row of projectRows) {
-    db.insert(projects).values(row).run();
+    db.insert(projects).values(row).onConflictDoUpdate({ target: projects.id, set: { ...row } as any }).run();
   }
 
-  // Seed Project Images
   const projectImageRows = [
     {
       id: 2,
@@ -226,10 +215,9 @@ async function seed() {
   ] as const;
 
   for (const row of projectImageRows) {
-    db.insert(projectImages).values(row).run();
+    db.insert(projectImages).values(row).onConflictDoUpdate({ target: projectImages.id, set: { ...row } as any }).run();
   }
 
-  // Seed Experience (exported from local DB)
   const experienceRows = [
     {
       id: 26,
@@ -246,6 +234,7 @@ async function seed() {
       current: true,
       showOnDice: true,
       diceOrder: 1,
+      videoUrl: "/uploads/videos/experience/1777235296711-120163963.mov",
     },
     {
       id: 27,
@@ -262,6 +251,7 @@ async function seed() {
       current: true,
       showOnDice: true,
       diceOrder: 2,
+      videoUrl: null,
     },
     {
       id: 28,
@@ -278,6 +268,7 @@ async function seed() {
       current: true,
       showOnDice: true,
       diceOrder: 3,
+      videoUrl: null,
     },
     {
       id: 29,
@@ -294,6 +285,7 @@ async function seed() {
       current: false,
       showOnDice: true,
       diceOrder: 4,
+      videoUrl: null,
     },
     {
       id: 30,
@@ -310,6 +302,7 @@ async function seed() {
       current: true,
       showOnDice: true,
       diceOrder: 5,
+      videoUrl: null,
     },
     {
       id: 31,
@@ -326,14 +319,117 @@ async function seed() {
       current: false,
       showOnDice: true,
       diceOrder: 6,
+      videoUrl: null,
     }
   ] as const;
 
   for (const row of experienceRows) {
-    db.insert(experience).values(row).run();
+    db.insert(experience).values(row).onConflictDoUpdate({ target: experience.id, set: { ...row } as any }).run();
   }
 
-  // Seed Skills
+  const experienceImageRows = [
+    {
+      id: 4,
+      experienceId: 26,
+      imageUrl: "/uploads/images/experience/1777224694541-495187639.png",
+      caption: null,
+      displayOrder: 0,
+      type: "image",
+    },
+    {
+      id: 5,
+      experienceId: 26,
+      imageUrl: "/uploads/images/experience/1777224694546-596147929.png",
+      caption: null,
+      displayOrder: 0,
+      type: "image",
+    },
+    {
+      id: 6,
+      experienceId: 26,
+      imageUrl: "/uploads/images/experience/1777224768151-329931581.png",
+      caption: null,
+      displayOrder: 0,
+      type: "image",
+    },
+    {
+      id: 8,
+      experienceId: 26,
+      imageUrl: "/uploads/images/experience/1777224860458-589218946.png",
+      caption: null,
+      displayOrder: 0,
+      type: "image",
+    },
+    {
+      id: 10,
+      experienceId: 27,
+      imageUrl: "/uploads/images/experience/1777224977320-4679814.png",
+      caption: null,
+      displayOrder: 0,
+      type: "image",
+    },
+    {
+      id: 11,
+      experienceId: 26,
+      imageUrl: "/uploads/videos/experience/1777235540961-581458380.mov",
+      caption: null,
+      displayOrder: 0,
+      type: "video",
+    },
+    {
+      id: 12,
+      experienceId: 26,
+      imageUrl: "/uploads/videos/experience/1777235541036-447087657.mov",
+      caption: null,
+      displayOrder: 0,
+      type: "video",
+    },
+    {
+      id: 13,
+      experienceId: 27,
+      imageUrl: "/uploads/videos/experience/1777236237958-804484268.mp4",
+      caption: null,
+      displayOrder: 0,
+      type: "video",
+    },
+    {
+      id: 14,
+      experienceId: 27,
+      imageUrl: "/uploads/images/experience/1777236548642-82439860.gif",
+      caption: null,
+      displayOrder: 0,
+      type: "image",
+    },
+    {
+      id: 15,
+      experienceId: 27,
+      imageUrl: "/uploads/images/experience/1777236564138-814069633.png",
+      caption: null,
+      displayOrder: 0,
+      type: "image",
+    },
+    {
+      id: 17,
+      experienceId: 27,
+      imageUrl: "/uploads/videos/experience/1777236581859-614327498.mov",
+      caption: null,
+      displayOrder: 0,
+      type: "video",
+    },
+    {
+      id: 18,
+      experienceId: 27,
+      imageUrl: "/uploads/videos/experience/1777236581897-910461981.mp4",
+      caption: null,
+      displayOrder: 0,
+      type: "video",
+    }
+  ] as const;
+
+  for (const row of experienceImageRows) {
+    db.insert(experienceImages).values(row).onConflictDoUpdate({ target: experienceImages.id, set: { ...row } as any }).run();
+  }
+
   const skillRows = [
     {
       id: 52,
@@ -474,10 +570,13 @@ async function seed() {
   ] as const;
 
   for (const row of skillRows) {
-    db.insert(skills).values(row).run();
+    db.insert(skills).values(row).onConflictDoUpdate({ target: skills.id, set: { ...row } as any }).run();
   }
 
-  // Seed Gallery
+  // No educationRows data
+
+  // No certificationRows data
+
   const galleryRows = [
     {
       id: 16,
@@ -650,7 +749,7 @@ async function seed() {
   ] as const;
 
   for (const row of galleryRows) {
-    db.insert(gallery).values(row).run();
+    db.insert(gallery).values(row).onConflictDoUpdate({ target: gallery.id, set: { ...row } as any }).run();
   }
 
   console.log("✅ Database seeded successfully!");
