@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { db } from "../db/index";
-import { projects, experience, skills, education, certifications, gallery, projectImages } from "../db/schema";
+import { projects, experience, skills, education, certifications, gallery, projectImages, experienceImages } from "../db/schema";
 import { desc, eq } from "drizzle-orm";
 import multer from "multer";
 import path from "path";
@@ -16,6 +16,8 @@ const projectThumbnailDir = path.resolve(uploadsDir, "project-thumbnails");
 const projectVideoDir = path.resolve(uploadsDir, "project-videos");
 const projectImagesDir = path.resolve(uploadsDir, "project-images");
 const galleryImageDir = path.resolve(uploadsDir, "gallery-images");
+const experienceImagesDir = path.resolve(uploadsDir, "images", "experience");
+const experienceVideoDir = path.resolve(uploadsDir, "videos", "experience");
 
 if (!fs.existsSync(logoUploadDir)) {
   fs.mkdirSync(logoUploadDir, { recursive: true });
@@ -35,6 +37,14 @@ if (!fs.existsSync(projectImagesDir)) {
 
 if (!fs.existsSync(galleryImageDir)) {
   fs.mkdirSync(galleryImageDir, { recursive: true });
+}
+
+if (!fs.existsSync(experienceImagesDir)) {
+  fs.mkdirSync(experienceImagesDir, { recursive: true });
+}
+
+if (!fs.existsSync(experienceVideoDir)) {
+  fs.mkdirSync(experienceVideoDir, { recursive: true });
 }
 
 const logoStorage = multer.diskStorage({
@@ -698,6 +708,156 @@ router.post("/experience/:id/logo", uploadExperienceLogo.single("logo"), async (
   } catch (error) {
     console.error("Error uploading experience logo:", error);
     res.status(500).json({ error: "Failed to upload logo" });
+  }
+});
+
+const experienceVideoStorage = multer.diskStorage({
+  destination(_req: any, _file: any, cb: any) {
+    cb(null, experienceVideoDir);
+  },
+  filename(_req: any, file: any, cb: any) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname) || ".mp4";
+    cb(null, `${uniqueSuffix}${ext}`);
+  },
+});
+
+const uploadExperienceVideo = multer({
+  storage: experienceVideoStorage,
+  fileFilter(_req: any, file: any, cb: any) {
+    if (file.mimetype.startsWith("video/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only video files are allowed"));
+    }
+  },
+  limits: { fileSize: 200 * 1024 * 1024 },
+});
+
+const experienceImageStorage = multer.diskStorage({
+  destination(_req: any, _file: any, cb: any) {
+    cb(null, experienceImagesDir);
+  },
+  filename(_req: any, file: any, cb: any) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname) || ".jpg";
+    cb(null, `${uniqueSuffix}${ext}`);
+  },
+});
+
+const uploadExperienceImages = multer({
+  storage: experienceImageStorage,
+  fileFilter(_req: any, file: any, cb: any) {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+// POST /api/experience/:id/videos - Upload videos into the experience media table
+router.post("/experience/:id/videos", uploadExperienceVideo.array("videos", 10), async (req: any, res) => {
+  if (!ALLOW_WRITES) {
+    return res.status(403).json({ error: "Writes are disabled in this environment" });
+  }
+  try {
+    const experienceId = parseInt(req.params.id);
+    if (Number.isNaN(experienceId)) {
+      return res.status(400).json({ error: "Invalid experience id" });
+    }
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+    const media = [];
+    for (const file of req.files) {
+      const relativeUrl = `/uploads/videos/experience/${file.filename}`;
+      const [newItem] = await db
+        .insert(experienceImages)
+        .values({ experienceId, imageUrl: relativeUrl, type: "video", displayOrder: 0 })
+        .returning();
+      media.push(newItem);
+    }
+    res.status(201).json({ media });
+  } catch (error) {
+    console.error("Error uploading experience videos:", error);
+    res.status(500).json({ error: "Failed to upload experience videos" });
+  }
+});
+
+// GET /api/experience/:id/images - Get all images for an experience entry
+router.get("/experience/:id/images", async (req, res) => {
+  try {
+    const experienceId = parseInt(req.params.id);
+    if (Number.isNaN(experienceId)) {
+      return res.status(400).json({ error: "Invalid experience id" });
+    }
+    const images = await db
+      .select()
+      .from(experienceImages)
+      .where(eq(experienceImages.experienceId, experienceId))
+      .orderBy(experienceImages.displayOrder);
+    res.json(images);
+  } catch (error) {
+    console.error("Error fetching experience images:", error);
+    res.status(500).json({ error: "Failed to fetch experience images" });
+  }
+});
+
+// POST /api/experience/:id/images - Upload images for an experience entry
+router.post("/experience/:id/images", uploadExperienceImages.array("images", 10), async (req: any, res) => {
+  if (!ALLOW_WRITES) {
+    return res.status(403).json({ error: "Writes are disabled in this environment" });
+  }
+  try {
+    const experienceId = parseInt(req.params.id);
+    if (Number.isNaN(experienceId)) {
+      return res.status(400).json({ error: "Invalid experience id" });
+    }
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+    const images = [];
+    for (const file of req.files) {
+      const relativeUrl = `/uploads/images/experience/${file.filename}`;
+      const [newImage] = await db
+        .insert(experienceImages)
+        .values({ experienceId, imageUrl: relativeUrl, displayOrder: 0 })
+        .returning();
+      images.push(newImage);
+    }
+    res.status(201).json({ images });
+  } catch (error) {
+    console.error("Error uploading experience images:", error);
+    res.status(500).json({ error: "Failed to upload experience images" });
+  }
+});
+
+// DELETE /api/experience/:id/images/:imageId - Delete an experience image
+router.delete("/experience/:id/images/:imageId", async (req, res) => {
+  if (!ALLOW_WRITES) {
+    return res.status(403).json({ error: "Writes are disabled in this environment" });
+  }
+  try {
+    const imageId = parseInt(req.params.imageId);
+    if (Number.isNaN(imageId)) {
+      return res.status(400).json({ error: "Invalid image id" });
+    }
+    const [img] = await db
+      .select()
+      .from(experienceImages)
+      .where(eq(experienceImages.id, imageId))
+      .limit(1);
+    if (img) {
+      const filePath = path.resolve(uploadsDir, img.imageUrl.replace(/^\/uploads\//, ""));
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await db.delete(experienceImages).where(eq(experienceImages.id, imageId));
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting experience image:", error);
+    res.status(500).json({ error: "Failed to delete experience image" });
   }
 });
 

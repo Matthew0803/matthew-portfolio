@@ -39,6 +39,7 @@ export interface Experience {
   location: string | null;
   description: string;
   logoUrl: string | null;
+  videoUrl: string | null;
   responsibilities: string[];
   achievements: string[];
   technologies: string[];
@@ -179,6 +180,27 @@ export function useCertifications() {
       const { data } = await axios.get("/api/certifications");
       return data;
     },
+  });
+}
+
+export interface ExperienceImage {
+  id: number;
+  experienceId: number;
+  imageUrl: string;
+  caption: string | null;
+  type: "image" | "video";
+  displayOrder: number;
+  createdAt: string;
+}
+
+export function useExperienceImages(experienceId: number) {
+  return useQuery<ExperienceImage[]>({
+    queryKey: ["experienceImages", experienceId],
+    queryFn: async () => {
+      const { data } = await axios.get(`/api/experience/${experienceId}/images`);
+      return data;
+    },
+    enabled: !Number.isNaN(experienceId) && experienceId > 0,
   });
 }
 

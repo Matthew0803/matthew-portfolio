@@ -106,3 +106,4 @@ temp/
 *.sqlite3
 
 CLAUDE.md
+.claude/

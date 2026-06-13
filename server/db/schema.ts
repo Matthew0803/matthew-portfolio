@@ -32,6 +32,7 @@ export const experience = sqliteTable("experience", {
   location: text("location"),
   description: text("description").notNull(),
   logoUrl: text("logo_url"),
+  videoUrl: text("video_url"),
   responsibilities: text("responsibilities").notNull(), // JSON string array
   achievements: text("achievements"), // JSON string array
   technologies: text("technologies"), // JSON string array
@@ -105,6 +106,17 @@ export const projectImages = sqliteTable("project_images", {
   createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
 });
 
+// Experience Images table
+export const experienceImages = sqliteTable("experience_images", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  experienceId: integer("experience_id").notNull(),
+  imageUrl: text("image_url").notNull(),
+  caption: text("caption"),
+  type: text("type").notNull().default("image"), // 'image' | 'video'
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: text("created_at").default("CURRENT_TIMESTAMP"),
+});
+
 // Type exports for TypeScript
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
@@ -120,3 +132,5 @@ export type Gallery = typeof gallery.$inferSelect;
 export type NewGallery = typeof gallery.$inferInsert;
 export type ProjectImage = typeof projectImages.$inferSelect;
 export type NewProjectImage = typeof projectImages.$inferInsert;
+export type ExperienceImage = typeof experienceImages.$inferSelect;
+export type NewExperienceImage = typeof experienceImages.$inferInsert;

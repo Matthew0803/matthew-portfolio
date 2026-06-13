@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Dice3D, { FaceIndex } from "@/components/Dice3D";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,7 +7,7 @@ import LogoImage from "@/components/LogoImage";
 import SocialBar from "@/components/SocialBar";
 import ScrambleText from "@/components/ScrambleText";
 import FloatingElements from "@/components/FloatingElements";
-import { useExperience } from "@/hooks/usePortfolio";
+import { useExperience, useExperienceImages } from "@/hooks/usePortfolio";
 
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,12 +15,17 @@ export default function Home() {
   const [selectedFace, setSelectedFace] = useState<FaceIndex | null>(null);
   // Increment each time a face is clicked so the Experience section remounts even for the same face
   const [selectionId, setSelectionId] = useState(0);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const expSectionRef = useRef<HTMLDivElement | null>(null);
 
   const diceExperiences = useMemo(
     () => (Array.isArray(experiences) ? experiences : []).filter((e) => e.showOnDice && e.logoUrl).slice(0, 6),
     [experiences]
   );
+
+  const selectedExpId = selectedFace ? (diceExperiences[selectedFace - 1]?.id ?? 0) : 0;
+  const { data: expImages } = useExperienceImages(selectedExpId);
 
 
   const faces = useMemo(
@@ -103,6 +109,8 @@ export default function Home() {
                   faceScale={1.0}
                   onFaceChange={(face) => {
                     setSelectedFace(face);
+                    setIsDetailsOpen(false);
+                    setLightboxIndex(null);
                     setSelectionId((n) => n + 1);
                   }}
                 />
@@ -147,30 +155,76 @@ export default function Home() {
                           </div>
                         </div>
                         <div className="mt-2 space-y-3">
+                          <p className="text-muted-foreground text-sm">{exp.description}</p>
+
+                          {expImages && expImages.length > 0 && (
+                            <div className="grid grid-cols-3 gap-2">
+                              {expImages.map((item, idx) => (
+                                <div
+                                  key={item.id}
+                                  className="group relative aspect-video overflow-hidden rounded-lg bg-muted"
+                                >
+                                  {item.type === "video" ? (
+                                    <video
+                                      src={item.imageUrl}
+                                      controls
+                                      playsInline
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full cursor-pointer" onClick={() => setLightboxIndex(idx)}>
+                                      <img
+                                        src={item.imageUrl}
+                                        alt={item.caption ?? `Image ${idx + 1}`}
+                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                      />
+                                      {item.caption && (
+                                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-xs text-white px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity truncate">
+                                          {item.caption}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
                           <div>
-                            <p className="text-sm font-medium mb-1">Work Summary</p>
-                            <p className="text-muted-foreground">{exp.description}</p>
+                            <button
+                              type="button"
+                              className="flex items-center gap-1.5 text-sm font-medium hover:text-primary transition-colors"
+                              onClick={() => setIsDetailsOpen((v) => !v)}
+                            >
+                              <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isDetailsOpen ? "rotate-180" : ""}`} />
+                              Technical Details
+                            </button>
+                            {isDetailsOpen && (
+                              <div className="mt-2 pl-5 space-y-3">
+                                {exp.responsibilities && exp.responsibilities.length > 0 && (
+                                  <div>
+                                    <p className="text-sm font-medium mb-1">Problem</p>
+                                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                      {exp.responsibilities.slice(0, 3).map((resp, idx) => (
+                                        <li key={idx}>{resp}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {exp.achievements && exp.achievements.length > 0 && (
+                                  <div>
+                                    <p className="text-sm font-medium mb-1">Solution</p>
+                                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                      {exp.achievements.slice(0, 3).map((ach, idx) => (
+                                        <li key={idx}>{ach}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
-                          {exp.responsibilities && exp.responsibilities.length > 0 && (
-                            <div>
-                              <p className="text-sm font-medium mb-2">Problem</p>
-                              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                                {exp.responsibilities.slice(0, 3).map((resp, idx) => (
-                                  <li key={idx}>{resp}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          {exp.achievements && exp.achievements.length > 0 && (
-                            <div>
-                              <p className="text-sm font-medium mb-2">Solution</p>
-                              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                                {exp.achievements.slice(0, 3).map((ach, idx) => (
-                                  <li key={idx}>{ach}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
+
                           {exp.technologies && exp.technologies.length > 0 && (
                             <div className="flex flex-wrap gap-2">
                               {exp.technologies.map((tech) => (
@@ -190,6 +244,37 @@ export default function Home() {
           </AnimatePresence>
         </div>
       </main>
+
+      {lightboxIndex !== null && expImages && expImages[lightboxIndex] && expImages[lightboxIndex].type === "image" && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <div
+            className="max-w-5xl w-full max-h-[90vh] bg-background rounded-lg overflow-hidden border border-border shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={expImages[lightboxIndex].imageUrl}
+              alt={expImages[lightboxIndex].caption ?? `Image ${lightboxIndex + 1}`}
+              className="w-full max-h-[80vh] object-contain"
+            />
+            <div className="p-4 border-t border-border flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {expImages[lightboxIndex].caption}
+                {expImages.length > 1 && ` — ${lightboxIndex + 1} / ${expImages.length}`}
+              </p>
+              <button
+                type="button"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setLightboxIndex(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SocialBar />
     </div>

@@ -4,7 +4,7 @@ import SocialBar from "@/components/SocialBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useExperience, type Experience } from "@/hooks/usePortfolio";
+import { useExperience, useExperienceImages, type Experience } from "@/hooks/usePortfolio";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -15,6 +15,7 @@ interface ExperienceFormState {
   location: string;
   description: string;
   logoUrl: string;
+  videoUrl: string;
   responsibilities: string;
   achievements: string;
   technologies: string;
@@ -30,6 +31,7 @@ const emptyForm: ExperienceFormState = {
   location: "",
   description: "",
   logoUrl: "",
+  videoUrl: "",
   responsibilities: "",
   achievements: "",
   technologies: "",
@@ -59,6 +61,9 @@ function AdminExperience() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const { data: expImages } = useExperienceImages(selectedId ?? 0);
   const [form, setForm] = useState<ExperienceFormState>(emptyForm);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -76,6 +81,7 @@ function AdminExperience() {
       location: exp.location ?? "",
       description: exp.description,
       logoUrl: exp.logoUrl ?? "",
+      videoUrl: exp.videoUrl ?? "",
       responsibilities: exp.responsibilities.join("\n"),
       achievements: exp.achievements.join("\n"),
       technologies: exp.technologies.join(", "),
@@ -158,6 +164,64 @@ function AdminExperience() {
     } finally {
       setIsUploadingLogo(false);
       event.target.value = "";
+    }
+  }
+
+  async function handleVideoUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (!selectedId) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    for (const file of Array.from(files)) {
+      formData.append("videos", file);
+    }
+
+    setIsUploadingVideo(true);
+    try {
+      await axios.post(`/api/experience/${selectedId}/videos`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      await queryClient.invalidateQueries({ queryKey: ["experienceImages", selectedId] });
+    } catch (err) {
+      console.error("Error uploading experience video", err);
+    } finally {
+      setIsUploadingVideo(false);
+      event.target.value = "";
+    }
+  }
+
+  async function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    if (!selectedId) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    for (const file of Array.from(files)) {
+      formData.append("images", file);
+    }
+
+    setIsUploadingImages(true);
+    try {
+      await axios.post(`/api/experience/${selectedId}/images`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      await queryClient.invalidateQueries({ queryKey: ["experienceImages", selectedId] });
+    } catch (err) {
+      console.error("Error uploading experience images", err);
+    } finally {
+      setIsUploadingImages(false);
+      event.target.value = "";
+    }
+  }
+
+  async function handleImageDelete(imageId: number) {
+    if (!selectedId) return;
+    try {
+      await axios.delete(`/api/experience/${selectedId}/images/${imageId}`);
+      await queryClient.invalidateQueries({ queryKey: ["experienceImages", selectedId] });
+    } catch (err) {
+      console.error("Error deleting experience image", err);
     }
   }
 
@@ -349,6 +413,68 @@ function AdminExperience() {
                       <p className="mt-1 text-xs text-muted-foreground">
                         Save the experience first, then upload a logo.
                       </p>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2">Media</label>
+                    {expImages && expImages.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        {expImages.map((item) => (
+                          <div key={item.id} className="relative group aspect-video overflow-hidden rounded-lg bg-muted">
+                            {item.type === "video" ? (
+                              <video
+                                src={item.imageUrl}
+                                controls
+                                playsInline
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <img
+                                src={item.imageUrl}
+                                alt={item.caption ?? "Experience image"}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleImageDelete(item.id)}
+                              className="absolute top-1 right-1 bg-black/70 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Images</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageUpload}
+                          disabled={!selectedId || isUploadingImages}
+                          className="block w-full text-sm text-muted-foreground"
+                        />
+                        {isUploadingImages && <p className="text-xs text-muted-foreground">Uploading...</p>}
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Videos</p>
+                        <input
+                          type="file"
+                          accept="video/*"
+                          multiple
+                          onChange={handleVideoUpload}
+                          disabled={!selectedId || isUploadingVideo}
+                          className="block w-full text-sm text-muted-foreground"
+                        />
+                        {isUploadingVideo && <p className="text-xs text-muted-foreground">Uploading...</p>}
+                      </div>
+                    </div>
+                    {!selectedId && (
+                      <p className="mt-1 text-xs text-muted-foreground">Save the experience first, then upload media.</p>
                     )}
                   </div>
                 </div>
