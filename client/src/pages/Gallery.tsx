@@ -1,23 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import SocialBar from "@/components/SocialBar";
 import { useGallery } from "@/hooks/usePortfolio";
+import { usePageFadeIn } from "@/hooks/usePageFadeIn";
 import { Button } from "@/components/ui/button";
 
 export default function Gallery() {
   const { data: galleryItems, isLoading, error } = useGallery();
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const fadeIn = usePageFadeIn();
   const [activeTag, setActiveTag] = useState<"CAD" | "Circuit" | null>(null);
 
   const selectedItem =
     selectedId != null && galleryItems
       ? galleryItems.find((item) => item.id === selectedId) ?? null
       : null;
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   const filteredItems = galleryItems
     ? activeTag
@@ -30,9 +27,7 @@ export default function Gallery() {
       <Navigation />
       <main className="flex-1 pt-32 pb-24">
         <div
-          className={`container transition-all duration-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+          className={`container ${fadeIn}`}
         >
           <div className="mb-12">
             <h1 className="text-5xl font-bold mb-4">Gallery</h1>

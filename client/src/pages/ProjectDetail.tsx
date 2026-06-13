@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePageFadeIn } from "@/hooks/usePageFadeIn";
 import { useRoute, Link } from "wouter";
 import { ArrowLeft, Github, ChevronLeft, ChevronRight } from "lucide-react";
 import Navigation from "@/components/Navigation";
@@ -12,7 +13,7 @@ export default function ProjectDetail() {
   const numericId = projectId ? Number(projectId) : NaN;
   const { data: project, isLoading, error } = useProject(numericId);
   const { data: projectImages } = useProjectImages(numericId);
-  const [isVisible, setIsVisible] = useState(false);
+  const fadeIn = usePageFadeIn();
   const [selectedImageId, setSelectedImageId] = useState<number | null>(null);
 
   const selectedImage = selectedImageId != null && projectImages
@@ -35,18 +36,12 @@ export default function ProjectDetail() {
     setSelectedImageId(projectImages[prevIndex].id);
   };
 
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className="flex-1 pt-32 pb-24">
         <div
-          className={`container max-w-4xl transition-all duration-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+          className={`container max-w-4xl ${fadeIn}`}
         >
           {/* Back Button */}
           <Link href="/projects">

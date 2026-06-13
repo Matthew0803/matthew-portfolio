@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePageFadeIn } from "@/hooks/usePageFadeIn";
 import Navigation from "@/components/Navigation";
 import SocialBar from "@/components/SocialBar";
 import { Button } from "@/components/ui/button";
@@ -65,8 +66,7 @@ function AdminExperience() {
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const { data: expImages } = useExperienceImages(selectedId ?? 0);
   const [form, setForm] = useState<ExperienceFormState>(emptyForm);
-  const [isVisible, setIsVisible] = useState(false);
-
+  const fadeIn = usePageFadeIn();
   const diceCount = experiences?.filter((e) => e.showOnDice).length ?? 0;
   const diceLimitReached = diceCount >= 6 && !form.showOnDice;
 
@@ -91,10 +91,6 @@ function AdminExperience() {
       showOnDice: exp.showOnDice ?? false,
     });
   }, [selectedId, experiences]);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   function resetForm() {
     setSelectedId(null);
@@ -276,9 +272,7 @@ function AdminExperience() {
       <Navigation />
       <main className="flex-1 pt-32 pb-24">
         <div
-          className={`container max-w-5xl transition-all duration-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+          className={`container max-w-5xl ${fadeIn}`}
         >
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Experience Admin</h1>

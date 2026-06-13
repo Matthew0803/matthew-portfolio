@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { usePageFadeIn } from "@/hooks/usePageFadeIn";
 import Navigation from "@/components/Navigation";
 import SocialBar from "@/components/SocialBar";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ function AdminGallery() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const fadeIn = usePageFadeIn();
 
   useEffect(() => {
     if (!selectedId || !items) return;
@@ -45,10 +46,6 @@ function AdminGallery() {
       displayOrder: item.displayOrder?.toString() ?? "",
     });
   }, [selectedId, items]);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   function resetForm() {
     setSelectedId(null);
@@ -219,9 +216,7 @@ function AdminGallery() {
       <Navigation />
       <main className="flex-1 pt-32 pb-24">
         <div
-          className={`container max-w-5xl transition-all duration-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+          className={`container max-w-5xl ${fadeIn}`}
         >
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Gallery Admin</h1>

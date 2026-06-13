@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePageFadeIn } from "@/hooks/usePageFadeIn";
 import Navigation from "@/components/Navigation";
 import SocialBar from "@/components/SocialBar";
 import { Button } from "@/components/ui/button";
@@ -71,7 +72,7 @@ function AdminProject() {
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [form, setForm] = useState<ProjectFormState>(emptyForm);
-  const [isVisible, setIsVisible] = useState(false);
+  const fadeIn = usePageFadeIn();
   const { data: projectImages, refetch: refetchImages } = useProjectImages(selectedId || 0);
 
   useEffect(() => {
@@ -98,10 +99,6 @@ function AdminProject() {
       endDate: project.endDate ?? "",
     });
   }, [selectedId, projects]);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   function resetForm() {
     setSelectedId(null);
@@ -307,9 +304,7 @@ function AdminProject() {
       <Navigation />
       <main className="flex-1 pt-32 pb-24">
         <div
-          className={`container transition-all duration-700 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
+          className={`container ${fadeIn}`}
         >
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="w-full lg:w-1/3">

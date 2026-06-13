@@ -491,7 +491,12 @@ router.delete("/projects/:id/images/:imageId", async (req, res) => {
       return res.status(400).json({ error: "Invalid image id" });
     }
 
-    await db.delete(projectImages).where(eq(projectImages.id, imageId));
+    const [img] = await db.select().from(projectImages).where(eq(projectImages.id, imageId)).limit(1);
+    if (img) {
+      const filePath = path.resolve(uploadsDir, img.imageUrl.replace(/^\/uploads\//, ""));
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      await db.delete(projectImages).where(eq(projectImages.id, imageId));
+    }
 
     res.json({ success: true });
   } catch (error) {

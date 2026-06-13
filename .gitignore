@@ -105,5 +105,6 @@ temp/
 *.sqlite
 *.sqlite3
 
+#Claude
 CLAUDE.md
 .claude/
